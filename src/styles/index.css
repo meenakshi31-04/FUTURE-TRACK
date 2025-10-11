@@ -1,0 +1,168 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background: #000000;
+    color: #ffffff;
+    overflow-x: hidden;
+  }
+
+  #root {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer components {
+  .gradient-bg {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  }
+  
+  .card-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(59, 130, 246, 0.15), 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .step-indicator {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #6b7280;
+  }
+  
+  .step-indicator.active {
+    background: #667eea;
+    color: white;
+  }
+
+  /* Full width container classes */
+  .full-width {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Add padding to body to account for fixed navbar */
+  body {
+    padding-top: 64px; /* Height of navbar */
+  }
+}
+
+/* Remove any max-width constraints from the root element */
+#root {
+  max-width: none !important;
+}
+
+/* Ensure all sections take full width */
+section, header, footer, main, div[class*="container"] {
+  max-width: none !important;
+}
+
+/* Override any Tailwind container classes that might limit width */
+.container {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Make sure all content stretches to full width */
+.w-full {
+  width: 100% !important;
+}
+
+/* Remove any horizontal margins */
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Ensure padding doesn't create artificial spacing */
+.p-2, .p-4, .p-6, .p-8 {
+  /* Keep vertical padding but ensure horizontal doesn't limit width */
+}
+
+/* Specific fixes for common layout elements */
+.max-w-7xl, .max-w-6xl, .max-w-5xl, .max-w-4xl, .max-w-3xl, .max-w-2xl, .max-w-xl, .max-w-lg, .max-w-md, .max-w-sm {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Ensure fixed navbar stays on top */
+nav.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+/* Add to your existing index.css */
+
+/* Input Select Styling */
+.input-select {
+  transition: all 0.3s ease;
+}
+
+.input-select:hover {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.2);
+}
+
+.input-select:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Custom select dropdown styling */
+select.input-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Remove default arrow in IE */
+select.input-select::-ms-expand {
+  display: none;
+}
+
+/* Button hover effects */
+button.input-select:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+/* Checkbox styling */
+input[type='checkbox'].input-select {
+  transition: all 0.2s ease;
+}
+
+input[type='checkbox'].input-select:hover {
+  transform: scale(1.1);
+}
