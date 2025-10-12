@@ -1,5 +1,6 @@
 // src/components/Modals/LoginModal.jsx
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const LoginModal = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
   const [formData, setFormData] = useState({
@@ -20,13 +21,35 @@ const LoginModal = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulate login
-    const userData = {
-      firstName: 'User',
-      email: formData.email
-    };
-    onLoginSuccess(userData);
+    setError('');
+    setLoading(true);
+    fetch('http://127.0.0.1:8000/api/login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: formData.email, password: formData.password })
+    })
+    .then(async res => {
+      setLoading(false);
+      const data = await res.json();
+      if (!res.ok) throw data;
+      if (data.token) localStorage.setItem('ft_token', data.token);
+      setPopup({ type: 'success', message: 'Login successful!' });
+      setTimeout(() => {
+        setPopup(null);
+        onLoginSuccess(data.user || { email: formData.email });
+      }, 1500);
+    })
+    .catch(err => {
+      setLoading(false);
+      setPopup({ type: 'error', message: err.detail || 'Login failed' });
+      setError(err.detail || 'Login failed');
+      setTimeout(() => setPopup(null), 2500);
+    });
   };
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [popup, setPopup] = useState(null);
 
   const RobotIcon = () => (
     <svg width="32" height="32" viewBox="0 0 32 32" className="text-white">
@@ -46,6 +69,12 @@ const LoginModal = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      {popup && createPortal(
+        <div style={{position:'fixed',top:'32px',left:'50%',transform:'translateX(-50%)',zIndex:9999}} className={`px-6 py-3 rounded-lg shadow-lg font-semibold text-lg ${popup.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+          {popup.message}
+        </div>,
+        document.body
+      )}
       <div className="bg-gray-900 border-2 border-blue-500 rounded-2xl p-8 max-w-md w-full relative">
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">

@@ -1,5 +1,6 @@
 // src/components/Modals/SignupModal.jsx
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
   const [formData, setFormData] = useState({
@@ -26,13 +27,42 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulate signup
-    const userData = {
-      firstName: formData.firstName,
-      email: formData.email
-    };
-    onSignupSuccess(userData);
+    // Post signup to backend
+    setError('');
+    setLoading(true);
+    fetch('http://127.0.0.1:8000/api/signup/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        education: formData.education,
+        password: formData.password
+      })
+    })
+    .then(async res => {
+      setLoading(false);
+      const data = await res.json();
+      if (!res.ok) throw data;
+      setPopup({ type: 'success', message: 'Signup successful!' });
+      setTimeout(() => {
+        setPopup(null);
+        onSignupSuccess(data.user || { firstName: formData.firstName, email: formData.email });
+      }, 1500);
+    })
+    .catch(err => {
+      setLoading(false);
+      setPopup({ type: 'error', message: err.detail || err.email || 'Signup failed' });
+      setError(err.detail || err.email || 'Signup failed');
+      setTimeout(() => setPopup(null), 2500);
+    });
   };
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [popup, setPopup] = useState(null);
 
   const RobotIcon = () => (
     <svg width="32" height="32" viewBox="0 0 32 32" className="text-white">
@@ -52,6 +82,12 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      {popup && createPortal(
+        <div style={{position:'fixed',top:'32px',left:'50%',transform:'translateX(-50%)',zIndex:9999}} className={`px-6 py-3 rounded-lg shadow-lg font-semibold text-lg ${popup.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+          {popup.message}
+        </div>,
+        document.body
+      )}
       <div className="bg-gray-900 border-2 border-purple-500 rounded-2xl p-8 max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
         {/* Close Button - Positioned absolutely at top right */}
         <button
