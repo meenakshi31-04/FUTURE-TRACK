@@ -1,13 +1,14 @@
 // src/components/Sections/DiscussionForum.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const DiscussionForum = () => {
-  const [posts, setPosts] = useState([
+  // The initial posts that load if the user has nothing saved
+  const initialPosts = [
     {
       id: 1,
       title: "Which programming language should I learn first?",
       author: "Rahul K.",
-      content: "I'm new to programming and want to start with the right language. Any suggestions for a complete beginner?",
+      content: "I'm new to programming and want to start with the right language.",
       replies: 15,
       views: 120,
       timestamp: "2 hours ago",
@@ -17,23 +18,24 @@ const DiscussionForum = () => {
       id: 2,
       title: "How to prepare for medical entrance exams?",
       author: "Priya S.",
-      content: "I want to pursue MBBS. What should be my study plan for NEET preparation?",
+      content: "I want to pursue MBBS. What should be my study plan?",
       replies: 23,
       views: 180,
       timestamp: "5 hours ago",
       category: "Medical"
-    },
-    {
-      id: 3,
-      title: "Career options after 12th Science",
-      author: "Amit R.",
-      content: "Completed 12th with PCM. Confused between engineering and other science fields. Need guidance.",
-      replies: 42,
-      views: 250,
-      timestamp: "1 day ago",
-      category: "Career Guidance"
     }
-  ]);
+  ];
+
+  // 1. Initialize state from Local Storage or with initial data
+  const [posts, setPosts] = useState(() => {
+    const savedPosts = localStorage.getItem('discussionPosts');
+    return savedPosts ? JSON.parse(savedPosts) : initialPosts;
+  });
+
+  // 2. Use useEffect to save posts to Local Storage whenever they change
+  useEffect(() => {
+    localStorage.setItem('discussionPosts', JSON.stringify(posts));
+  }, [posts]); // This hook runs every time the 'posts' state updates
 
   const [selectedCategory, setSelectedCategory] = useState('All Topics');
   const [newPost, setNewPost] = useState({
@@ -46,7 +48,8 @@ const DiscussionForum = () => {
   const handleSubmitPost = (e) => {
     e.preventDefault();
     const post = {
-      id: posts.length + 1,
+      // Use a more unique ID like a timestamp
+      id: Date.now(), 
       title: newPost.title,
       author: "Current User",
       content: newPost.content,
@@ -116,7 +119,6 @@ const DiscussionForum = () => {
                       <option value="Technology">Technology</option>
                       <option value="Medical">Medical</option>
                       <option value="Engineering">Engineering</option>
-                      {/* Added the two new categories here */}
                       <option value="Arts & Humanities">Arts & Humanities</option>
                       <option value="Science">Science</option>
                     </select>
