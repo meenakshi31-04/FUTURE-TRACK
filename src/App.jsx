@@ -108,6 +108,28 @@ function App() {
     setActiveSection('courses');
   };
 
+  // Handle footer link clicks
+  const handleFooterLink = (linkName) => {
+    const sectionMap = {
+      'Career Quiz': 'ai-quiz',
+      'College Reviews': 'colleges',
+      'Student Forum': 'forum',
+      'Success Stories': 'success-stories',
+      'Contact Us': 'contact',
+      'Help Center': 'contact',
+      'Engineering': 'home',
+      'Medical': 'home',
+      'Civil Services': 'home',
+      'Teaching': 'home',
+      'Privacy Policy': 'home',
+      'Terms of Service': 'home'
+    };
+    const section = sectionMap[linkName];
+    if (section) {
+      handleNavClick(section);
+    }
+  };
+
   // Render content based on active section and login status
   const renderContent = () => {
     if (!isLoggedIn) {
@@ -236,7 +258,7 @@ function App() {
             )}
           </main>
 
-          <Footer />
+          <Footer onFooterLink={handleFooterLink} />
 
           {/* Auth Modals */}
           {showLogin && (

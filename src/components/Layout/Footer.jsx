@@ -1,7 +1,7 @@
 // src/components/Layout/Footer.jsx
 import React from 'react';
 
-const Footer = () => {
+const Footer = ({ onFooterLink }) => {
   const quickLinks = [
     { name: "Career Quiz", href: "#" },
     { name: "College Reviews", href: "#" },
@@ -44,12 +44,12 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="hover:text-blue-300 transition-all duration-300 hover:scale-105 transform inline-block"
+                  <button
+                    onClick={() => onFooterLink(link.name)}
+                    className="hover:text-blue-300 transition-all duration-300 hover:scale-105 transform inline-block text-left"
                   >
                     {link.name}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -61,12 +61,12 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               {popularCareers.map((career, index) => (
                 <li key={index}>
-                  <a 
-                    href={career.href}
-                    className="hover:text-blue-300 transition-all duration-300 hover:scale-105 transform inline-block"
+                  <button
+                    onClick={() => onFooterLink(career.name)}
+                    className="hover:text-blue-300 transition-all duration-300 hover:scale-105 transform inline-block text-left"
                   >
                     {career.name}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -78,12 +78,12 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               {supportLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="hover:text-blue-300 transition-colors"
+                  <button
+                    onClick={() => onFooterLink(link.name)}
+                    className="hover:text-blue-300 transition-colors text-left"
                   >
                     {link.name}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -92,7 +92,7 @@ const Footer = () => {
         
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 FutureTrack. Made with ❤️ for Indian students.</p>
+          <p>&copy; 2025 FutureTrack. Made with ❤️ for Indian students.</p>
         </div>
       </div>
     </footer>
