@@ -62,8 +62,11 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
       });
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+    return (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
       {/* Success/Error popup */}
       {popup &&
         createPortal(
@@ -86,7 +89,10 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
           document.body
         )}
 
-      <div className="flex bg-white rounded-2xl overflow-hidden shadow-2xl w-[700px] h-[560px] relative">
+      <div 
+        className="flex bg-white rounded-2xl overflow-hidden shadow-2xl w-[700px] h-[560px] relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Left Gradient Section */}
         <div className="bg-gradient-to-b from-blue-500 to-blue-700 text-white flex flex-col justify-center items-center w-5/12 p-8">
           <h1 className="text-3xl font-extrabold mb-2">Future Track</h1>

@@ -22,20 +22,6 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
     setMobileMenuOpen(false);
   };
 
-  const RobotIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" className="text-white">
-      <rect x="6" y="8" width="12" height="10" rx="2" fill="currentColor"/>
-      <circle cx="9" cy="12" r="1.5" fill="white"/>
-      <circle cx="15" cy="12" r="1.5" fill="white"/>
-      <circle cx="9" cy="12" r="0.5" fill="currentColor"/>
-      <circle cx="15" cy="12" r="0.5" fill="currentColor"/>
-      <rect x="10.5" y="15" width="3" height="0.5" rx="0.25" fill="white"/>
-      <path d="M4 10 Q4 6 12 6 Q20 6 20 10" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-      <rect x="2" y="9" width="3" height="4" rx="1.5" fill="currentColor"/>
-      <rect x="19" y="9" width="3" height="4" rx="1.5" fill="currentColor"/>
-    </svg>
-  );
-
   return (
     <nav className="bg-black/95 backdrop-blur-md shadow-xl border-b-2 border-blue-500 fixed top-0 left-0 right-0 z-50 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -43,11 +29,11 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
           {/* Logo */}
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                <RobotIcon />
+                  <img src="/logo.jpg" alt="Logo" className="w-10 h-10 rounded-full object-cover" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">{t('brand_name')}</h1>
-                <p className="text-xs text-blue-300 hidden sm:block">{t('brand_description')}</p>
+                
               </div>
             </div>
 
