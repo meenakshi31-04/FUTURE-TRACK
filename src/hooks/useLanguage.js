@@ -26,7 +26,21 @@ export const LanguageProvider = ({ children }) => {
   };
 
   const t = (key) => {
-    return translations[currentLanguage]?.[key] || translations.en[key] || key;
+    // Primary: exact key in current language
+    if (translations[currentLanguage] && translations[currentLanguage][key]) {
+      return translations[currentLanguage][key];
+    }
+    // Secondary: check for suffixed key patterns created earlier (e.g., key_hi, key_te)
+    const suffixedKey = `${key}_${currentLanguage}`;
+    if (translations[currentLanguage] && translations[currentLanguage][suffixedKey]) {
+      return translations[currentLanguage][suffixedKey];
+    }
+    // Also check English object for suffixed keys (we sometimes added translations there with _hi/_te)
+    if (translations.en && translations.en[suffixedKey]) {
+      return translations.en[suffixedKey];
+    }
+    // Fallback to English original key, then the key itself
+    return translations.en[key] || key;
   };
 
   const value = {
