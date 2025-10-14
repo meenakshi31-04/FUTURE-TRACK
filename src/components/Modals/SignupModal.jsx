@@ -16,10 +16,13 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [popup, setPopup] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
@@ -27,7 +30,6 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Post signup to backend
     setError('');
     setLoading(true);
     fetch('http://127.0.0.1:8000/api/signup/', {
@@ -42,298 +44,212 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
         password: formData.password
       })
     })
-    .then(async res => {
-      setLoading(false);
-      const data = await res.json();
-      if (!res.ok) throw data;
-      setPopup({ type: 'success', message: 'Signup successful!' });
-      setTimeout(() => {
-        setPopup(null);
-        onSignupSuccess(data.user || { firstName: formData.firstName, email: formData.email });
-      }, 1500);
-    })
-    .catch(err => {
-      setLoading(false);
-      setPopup({ type: 'error', message: err.detail || err.email || 'Signup failed' });
-      setError(err.detail || err.email || 'Signup failed');
-      setTimeout(() => setPopup(null), 2500);
-    });
+      .then(async (res) => {
+        setLoading(false);
+        const data = await res.json();
+        if (!res.ok) throw data;
+        setPopup({ type: 'success', message: 'Signup successful!' });
+        setTimeout(() => {
+          setPopup(null);
+          onSignupSuccess(data.user || { firstName: formData.firstName, email: formData.email });
+        }, 1500);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setPopup({ type: 'error', message: err.detail || err.email || 'Signup failed' });
+        setError(err.detail || err.email || 'Signup failed');
+        setTimeout(() => setPopup(null), 2500);
+      });
   };
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [popup, setPopup] = useState(null);
-
-  const RobotIcon = () => (
-    <svg width="32" height="32" viewBox="0 0 32 32" className="text-white">
-      <rect x="8" y="10" width="16" height="14" rx="3" fill="currentColor"/>
-      <circle cx="12" cy="16" r="2" fill="white"/>
-      <circle cx="20" cy="16" r="2" fill="white"/>
-      <circle cx="12" cy="16" r="1" fill="currentColor"/>
-      <circle cx="20" cy="16" r="1" fill="currentColor"/>
-      <rect x="14" y="20" width="4" height="1" rx="0.5" fill="white"/>
-      <path d="M6 14 Q6 8 16 8 Q26 8 26 14" stroke="currentColor" strokeWidth="2" fill="none"/>
-      <rect x="4" y="12" width="4" height="6" rx="2" fill="currentColor"/>
-      <rect x="24" y="12" width="4" height="6" rx="2" fill="currentColor"/>
-      <line x1="6" y1="18" x2="10" y2="20" stroke="currentColor" strokeWidth="1.5"/>
-      <circle cx="10" cy="20" r="1.5" fill="currentColor"/>
-    </svg>
-  );
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      {popup && createPortal(
-        <div style={{position:'fixed',top:'32px',left:'50%',transform:'translateX(-50%)',zIndex:9999}} className={`px-6 py-3 rounded-lg shadow-lg font-semibold text-lg ${popup.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
-          {popup.message}
-        </div>,
-        document.body
-      )}
-      <div className="bg-gray-900 border-2 border-purple-500 rounded-2xl p-8 max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
-        {/* Close Button - Positioned absolutely at top right */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10 bg-gray-800 rounded-full p-2 hover:bg-gray-700"
-        >
-          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+      {/* Success/Error popup */}
+      {popup &&
+        createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: '32px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 9999
+            }}
+            className={`px-6 py-3 rounded-lg shadow-lg font-semibold text-lg ${
+              popup.type === 'success'
+                ? 'bg-green-600 text-white'
+                : 'bg-red-600 text-white'
+            }`}
+          >
+            {popup.message}
+          </div>,
+          document.body
+        )}
 
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <RobotIcon />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Join FutureTrack</h2>
-          <p className="text-gray-300">Create your account to start your career journey</p>
+      <div className="flex bg-white rounded-2xl overflow-hidden shadow-2xl w-[700px] h-[560px] relative">
+        {/* Left Gradient Section */}
+        <div className="bg-gradient-to-b from-blue-500 to-blue-700 text-white flex flex-col justify-center items-center w-5/12 p-8">
+          <h1 className="text-3xl font-extrabold mb-2">Future Track</h1>
+          <p className="text-center text-sm opacity-90 px-4">
+            Start your journey today and take the next step toward your goals.
+          </p>
         </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Fields - Side by Side */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center space-x-4">
-              <label className="text-white font-medium w-24 text-right">
-                First Name:
-              </label>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-400 transition-colors"
-                  placeholder="Enter first name"
-                />
-                {formData.firstName && (
-                  <p className="text-green-400 text-sm mt-1">
-                    ✓ You entered: <span className="font-medium">{formData.firstName}</span>
-                  </p>
-                )}
-              </div>
-            </div>
 
-            <div className="flex items-center space-x-4">
-              <label className="text-white font-medium w-24 text-right">
-                Last Name:
-              </label>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-400 transition-colors"
-                  placeholder="Enter last name"
-                />
-                {formData.lastName && (
-                  <p className="text-green-400 text-sm mt-1">
-                    ✓ You entered: <span className="font-medium">{formData.lastName}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Right Form Section */}
+        <div className="w-7/12 bg-white p-8 relative overflow-y-auto">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
 
-          {/* Email Field */}
-          <div className="flex items-center space-x-4">
-            <label className="text-white font-medium w-24 text-right">
-              Email:
-            </label>
-            <div className="flex-1">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Sign up</h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-400 transition-colors"
-                placeholder="Enter your email"
+                placeholder="First Name"
+                className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
               />
-              {formData.email && (
-                <p className="text-green-400 text-sm mt-1">
-                  ✓ You entered: <span className="font-medium">{formData.email}</span>
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Phone Field */}
-          <div className="flex items-center space-x-4">
-            <label className="text-white font-medium w-24 text-right">
-              Phone:
-            </label>
-            <div className="flex-1">
               <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
+                type="text"
+                name="lastName"
+                value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-400 transition-colors"
-                placeholder="Enter your phone number"
+                placeholder="Last Name"
+                className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
               />
-              {formData.phone && (
-                <p className="text-green-400 text-sm mt-1">
-                  ✓ You entered: <span className="font-medium">{formData.phone}</span>
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Education Level Field */}
-          <div className="flex items-center space-x-4">
-            <label className="text-white font-medium w-24 text-right">
-              Education:
-            </label>
-            <div className="flex-1">
-              <select
-                name="education"
-                value={formData.education}
-                onChange={handleChange}
-                required
-                className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white transition-colors appearance-none cursor-pointer"
-              >
-                <option value="" className="text-gray-400">Select your education level</option>
-                <option value="10th" className="text-white bg-gray-800">10th Class</option>
-                <option value="12th" className="text-white bg-gray-800">12th Class</option>
-                <option value="undergraduate" className="text-white bg-gray-800">Undergraduate</option>
-                <option value="graduate" className="text-white bg-gray-800">Graduate</option>
-                <option value="postgraduate" className="text-white bg-gray-800">Post Graduate</option>
-              </select>
-              {formData.education && (
-                <p className="text-green-400 text-sm mt-1">
-                  ✓ Selected: <span className="font-medium">{formData.education}</span>
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Password Fields - Side by Side */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center space-x-4">
-              <label className="text-white font-medium w-24 text-right">
-                Password:
-              </label>
-              <div className="flex-1">
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-400 pr-12 transition-colors"
-                    placeholder="Create password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    {showPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-                {formData.password && (
-                  <p className="text-green-400 text-sm mt-1">
-                    ✓ Password: <span className="font-medium">{showPassword ? formData.password : '••••••••'}</span>
-                  </p>
-                )}
-              </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <label className="text-white font-medium w-24 text-right">
-                Confirm:
-              </label>
-              <div className="flex-1">
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    className="input-select w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white placeholder-gray-400 pr-12 transition-colors"
-                    placeholder="Confirm password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    {showConfirmPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-                {formData.confirmPassword && (
-                  <p className="text-green-400 text-sm mt-1">
-                    ✓ Confirmed: <span className="font-medium">{showConfirmPassword ? formData.confirmPassword : '••••••••'}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Terms Agreement */}
-          <div className="flex items-center space-x-3 pl-28">
+            {/* Email Field */}
             <input
-              type="checkbox"
-              name="agreeTerms"
-              checked={formData.agreeTerms}
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               required
-              className="input-select rounded border-gray-600 bg-gray-700 text-purple-500 focus:ring-purple-500 focus:ring-offset-gray-900 cursor-pointer transition-colors"
+              placeholder="Email"
+              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
             />
-            <span className="text-gray-300 text-sm">
-              I agree to the{' '}
-              <button type="button" className="text-purple-400 hover:text-purple-300 underline transition-colors">
-                Terms of Service
-              </button>{' '}
-              and{' '}
-              <button type="button" className="text-purple-400 hover:text-purple-300 underline transition-colors">
-                Privacy Policy
-              </button>
-            </span>
-          </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="input-select w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all hover:scale-105 transform border border-transparent hover:border-purple-400"
-          >
-            Create Account
-          </button>
-        </form>
-        
-        {/* Switch to Login */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-400">
+            {/* Phone Field */}
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              placeholder="Phone"
+              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
+            />
+
+            {/* Education Field */}
+            <select
+              name="education"
+              value={formData.education}
+              onChange={handleChange}
+              required
+              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 bg-transparent text-gray-700"
+            >
+              <option value="">Select Education Level</option>
+              <option value="10th">10th Class</option>
+              <option value="12th">12th Class</option>
+              <option value="undergraduate">Undergraduate</option>
+              <option value="graduate">Graduate</option>
+              <option value="postgraduate">Post Graduate</option>
+            </select>
+
+            {/* Password Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="Password"
+                  className="w-full border-b border-gray-300 py-2 pr-10 focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  placeholder="Confirm Password"
+                  className="w-full border-b border-gray-300 py-2 pr-10 focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
+            </div>
+
+            {/* Terms Agreement */}
+            <label className="flex items-center text-sm text-gray-600 space-x-2">
+              <input
+                type="checkbox"
+                name="agreeTerms"
+                checked={formData.agreeTerms}
+                onChange={handleChange}
+                required
+                className="accent-blue-500"
+              />
+              <span>
+                I agree to the{' '}
+                <button type="button" className="text-blue-600 hover:underline">
+                  Terms
+                </button>{' '}
+                &{' '}
+                <button type="button" className="text-blue-600 hover:underline">
+                  Privacy Policy
+                </button>
+              </span>
+            </label>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200"
+            >
+              {loading ? 'Signing up...' : 'SIGN UP'}
+            </button>
+          </form>
+
+          {/* Switch to Login */}
+          <p className="text-gray-500 text-sm text-center mt-6">
             Already have an account?{' '}
             <button
               onClick={onSwitchToLogin}
-              className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
+              className="text-blue-600 font-semibold hover:underline"
             >
-              Login here
+              Sign in
             </button>
           </p>
         </div>
