@@ -4,26 +4,18 @@ import { useLanguage } from '../../hooks/useLanguage';
 
 const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, isLoggedIn, user, onLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { currentLanguage, changeLanguage } = useLanguage();
+  const { currentLanguage, changeLanguage, t } = useLanguage();
 
-  // Navigation items configuration
-  const getNavItems = () => {
-    if (isLoggedIn) {
-      return [
-        { key: 'nav_home', section: 'home', label: 'Home' },
-        { key: 'nav_ai_quiz', section: 'ai-quiz', label: 'AI Quiz' },
-        { key: 'nav_courses', section: 'courses', label: 'Courses' },
-        { key: 'nav_forum', section: 'forum', label: 'Discussion Forum' },
-        { key: 'nav_colleges', section: 'colleges', label: 'Colleges' },
-        { key: 'nav_success_stories', section: 'success-stories', label: 'Success Stories' },
-        { key: 'nav_contact', section: 'contact', label: 'Contact' }
-      ];
-    } else {
-      return [];
-    }
-  };
-
-  const navItems = getNavItems();
+  // Navigation items configuration (visible to all; App handles login gating on click)
+  const navItems = [
+    { key: 'nav_home', section: 'home' },
+    { key: 'nav_ai_quiz', section: 'ai-quiz' },
+    { key: 'nav_courses', section: 'courses' },
+    { key: 'nav_forum', section: 'forum' },
+    { key: 'nav_colleges', section: 'colleges' },
+    { key: 'nav_success_stories', section: 'success-stories' },
+    { key: 'nav_contact', section: 'contact' }
+  ];
 
   const handleNavClick = (section) => {
     setActiveSection(section);
@@ -49,19 +41,18 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-              <RobotIcon />
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                <RobotIcon />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">{t('brand_name')}</h1>
+                <p className="text-xs text-blue-300 hidden sm:block">{t('brand_description')}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">FutureTrack</h1>
-              <p className="text-xs text-blue-300 hidden sm:block">AI Career Guide</p>
-            </div>
-          </div>
 
-          {/* Desktop Navigation */}
-          {isLoggedIn && (
-            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+          {/* Desktop Navigation (visible to all; clicking may prompt login) */}
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
               {navItems.map((item) => (
                 <button
                   key={item.section}
@@ -72,11 +63,10 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
                       : 'text-gray-300 border-transparent hover:text-blue-400 hover:border-blue-400 hover:bg-blue-900/30 hover:scale-105'
                   }`}
                 >
-                  {item.label}
+                  {t(item.key)}
                 </button>
               ))}
-            </div>
-          )}
+          </div>
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -103,7 +93,7 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
                   onClick={onLogout}
                   className="px-3 py-2 rounded-lg border border-red-500 text-red-300 hover:bg-red-900/30 transition-colors text-sm"
                 >
-                  Logout
+                  {t('auth_logout')}
                 </button>
               </div>
             ) : (
@@ -112,13 +102,13 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
                   onClick={() => setShowLogin(true)}
                   className="px-3 py-2 rounded-lg border border-blue-500 text-blue-300 hover:bg-blue-900/30 hover:text-blue-200 transition-colors font-medium text-sm"
                 >
-                  Login
+                  {t('auth_login')}
                 </button>
                 <button
                   onClick={() => setShowSignup(true)}
                   className="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 text-white font-medium hover:shadow-lg hover:from-blue-400 hover:to-blue-600 transition-all text-sm"
                 >
-                  Sign Up
+                  {t('auth_signup')}
                 </button>
               </div>
             )}
@@ -161,33 +151,31 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
               </select>
             </div>
 
-            {/* Navigation Items */}
-            {isLoggedIn && (
-              <>
-                {navItems.map((item) => (
-                  <button
-                    key={item.section}
-                    onClick={() => handleNavClick(item.section)}
-                    className="block w-full text-left text-gray-300 hover:text-blue-400 py-3 px-4 rounded-lg hover:bg-blue-900/30 transition-all duration-300 font-medium text-sm"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <div className="pt-3 border-t border-blue-500"></div>
-              </>
-            )}
+            {/* Navigation Items (visible to all on mobile) */}
+            <>
+              {navItems.map((item) => (
+                <button
+                  key={item.section}
+                  onClick={() => handleNavClick(item.section)}
+                  className="block w-full text-left text-gray-300 hover:text-blue-400 py-3 px-4 rounded-lg hover:bg-blue-900/30 transition-all duration-300 font-medium text-sm"
+                >
+                  {t(item.key)}
+                </button>
+              ))}
+              <div className="pt-3 border-t border-blue-500"></div>
+            </>
             
             {/* Mobile Auth Buttons / User Info */}
             {isLoggedIn ? (
               <div className="space-y-2">
                 <div className="px-3 py-2 text-blue-300 text-sm">
-                  Welcome, {user?.firstName}
+                  {t('login_welcome').replace('Back','')}, {user?.firstName}
                 </div>
                 <button
                   onClick={onLogout}
                   className="block w-full text-left px-3 py-2 rounded-lg border border-red-500 text-red-300 hover:bg-red-900/30 transition-colors font-medium text-sm"
                 >
-                  Logout
+                  {t('auth_logout')}
                 </button>
               </div>
             ) : (
@@ -199,7 +187,7 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
                   }}
                   className="block w-full text-left px-3 py-2 rounded-lg border border-blue-500 text-blue-300 hover:bg-blue-900/30 hover:text-blue-200 transition-colors font-medium text-sm"
                 >
-                  Login
+                  {t('auth_login')}
                 </button>
                 <button
                   onClick={() => {
@@ -208,7 +196,7 @@ const Navbar = ({ activeSection, setActiveSection, setShowLogin, setShowSignup, 
                   }}
                   className="block w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 text-white font-medium hover:shadow-lg hover:from-blue-400 hover:to-blue-600 transition-all text-sm"
                 >
-                  Sign Up
+                  {t('auth_signup')}
                 </button>
               </div>
             )}
