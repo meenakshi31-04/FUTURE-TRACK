@@ -125,7 +125,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
                 onChange={handleChange}
                 required
                 placeholder="First Name"
-                className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 text-gray-900"
               />
               <input
                 type="text"
@@ -134,7 +134,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
                 onChange={handleChange}
                 required
                 placeholder="Last Name"
-                className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 text-gray-900"
               />
             </div>
 
@@ -146,7 +146,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
               onChange={handleChange}
               required
               placeholder="Email"
-              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 text-gray-900"
             />
 
             {/* Phone Field */}
@@ -157,7 +157,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
               onChange={handleChange}
               required
               placeholder="Phone"
-              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 text-gray-900"
             />
 
             {/* Education Field */}
@@ -166,7 +166,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
               value={formData.education}
               onChange={handleChange}
               required
-              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 bg-transparent text-gray-700"
+              className="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-blue-500 bg-transparent text-gray-900"
             >
               <option value="">Select Education Level</option>
               <option value="10th">10th Class</option>
@@ -186,7 +186,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
                   onChange={handleChange}
                   required
                   placeholder="Password"
-                  className="w-full border-b border-gray-300 py-2 pr-10 focus:outline-none focus:border-blue-500"
+                  className="w-full border-b border-gray-300 py-2 pr-10 focus:outline-none focus:border-blue-500 text-gray-900"
                 />
                 <button
                   type="button"
@@ -204,7 +204,7 @@ const SignupModal = ({ onClose, onSwitchToLogin, onSignupSuccess }) => {
                   onChange={handleChange}
                   required
                   placeholder="Confirm Password"
-                  className="w-full border-b border-gray-300 py-2 pr-10 focus:outline-none focus:border-blue-500"
+                  className="w-full border-b border-gray-300 py-2 pr-10 focus:outline-none focus:border-blue-500 text-gray-900"
                 />
                 <button
                   type="button"

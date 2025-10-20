@@ -122,7 +122,7 @@ const LoginModal = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-blue-500 text-sm"
+                className="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-blue-500 text-sm text-gray-900"
                 placeholder="Enter your email"
               />
             </div>
@@ -137,7 +137,7 @@ const LoginModal = ({ onClose, onSwitchToSignup, onLoginSuccess }) => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-blue-500 pr-8 text-sm"
+                  className="w-full border-b border-gray-300 py-1 focus:outline-none focus:border-blue-500 pr-8 text-sm text-gray-900"
                   placeholder="Enter your password"
                 />
                 <button
