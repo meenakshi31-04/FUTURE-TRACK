@@ -82,15 +82,17 @@ const Navbar = ({
 
             {/* Auth Section */}
             {isLoggedIn ? (
-              <div className="hidden md:flex items-center space-x-3">
-                <span className="text-blue-300 text-sm font-medium">
-                  👋 {user?.firstName}
-                </span>
-                <button
-                  onClick={onLogout}
-                  className="px-3 py-2 rounded-lg text-sm font-medium border border-red-400/50 text-red-300 hover:bg-red-900/30 transition-all"
-                >
-                  {t("auth_logout")}
+              <div className="hidden md:flex items-center">
+                <button onClick={() => handleNavClick('dashboard')} className="p-0 m-0 bg-transparent border-none">
+                  <img 
+                    src={user?.avatar_url || '/assets/profile-avatar.svg'} 
+                    alt="profile" 
+                    className="w-8 h-8 rounded-full object-cover border-2 border-blue-400 cursor-pointer" 
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      e.target.src = '/assets/profile-avatar.svg';
+                    }} 
+                  />
                 </button>
               </div>
             ) : (
@@ -187,9 +189,24 @@ const Navbar = ({
             <div className="pt-3 border-t border-blue-500/40 space-y-2">
               {isLoggedIn ? (
                 <>
-                  <div className="text-blue-300 text-sm px-3">
-                    {t("login_welcome").replace("Back", "")}, {user?.firstName}
+                  <div className="flex items-center gap-3 px-3">
+                    <img 
+                      src={user?.avatar_url || '/assets/profile-avatar.svg'} 
+                      alt="profile" 
+                      className="w-8 h-8 rounded-full object-cover border-2 border-blue-400" 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/assets/profile-avatar.svg';
+                      }} 
+                    />
+                    <div className="text-blue-300 text-sm">{user?.firstName}</div>
                   </div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); handleNavClick('dashboard'); }}
+                    className="block w-full text-left px-3 py-2 rounded-lg border border-blue-400/50 text-blue-300 hover:bg-blue-900/20 transition-all text-sm"
+                  >
+                    {t('nav_dashboard')}
+                  </button>
                   <button
                     onClick={onLogout}
                     className="block w-full text-left px-3 py-2 rounded-lg border border-red-400/50 text-red-300 hover:bg-red-900/30 transition-all text-sm"

@@ -2,6 +2,7 @@
 export const translations = {
   en: {
     nav_home: "Home",
+  nav_dashboard: "Dashboard",
     nav_career_guide: "Career Guide", 
     nav_ai_quiz: "AI Quiz",
     nav_colleges: "Colleges",
@@ -560,6 +561,7 @@ export const translations = {
   review_arjun_text_te: "ఇంజనీరింగ్ మరియు సివిల్ సర్వీసుల మధ్య నేను குழపడ్డాను. కెరీర్ క్విజ్ నాకు ప్రజా సేవలపై నా ఆసక్తిని చూపించింది. ఇప్పుడు UPSC కోసం సిద్ధమవుతున్నాను!",
   hi: {
     nav_home: "होम",
+  nav_dashboard: "डैशबोर्ड",
     nav_career_guide: "करियर गाइड",
     nav_ai_quiz: "AI क्विज़",
     nav_colleges: "कॉलेज",
@@ -741,6 +743,7 @@ export const translations = {
   },
   te: {
     nav_home: "హోమ్",
+  nav_dashboard: "డాష్‌బోర్డు",
     nav_career_guide: "కెరీర్ గైడ్",
     nav_ai_quiz: "AI క్విజ్",
     nav_colleges: "కాలేజీలు",

@@ -1,0 +1,133 @@
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import ConfirmationModal from './ConfirmationModal';
+
+const EditProfileModal = ({ open, onClose, profile, form, setForm, avatarPreview, setAvatarPreview, handleSave, saving, error, getSafeToken }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/60" onClick={onClose} />
+      <div className="flex bg-white rounded-2xl overflow-hidden shadow-2xl w-[700px] h-[560px] relative z-[101]" onClick={(e) => e.stopPropagation()}>
+        {/* Left Gradient Branding + Avatar */}
+        <div className="bg-gradient-to-b from-blue-500 to-blue-700 text-white flex flex-col justify-center items-center w-5/12 p-8">
+          <h2 className="text-2xl font-extrabold mb-2">Future Track</h2>
+          <p className="text-center text-sm opacity-90 px-2 mb-4">Update your profile and keep your progress in sync.</p>
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white mb-2 shadow-lg">
+            <img src={avatarPreview || profile?.avatar_url || '/assets/profile-avatar.svg'} alt="avatar preview" className="w-full h-full object-cover" />
+          </div>
+          <label className="block text-sm text-white font-medium mb-1">Profile Picture</label>
+          <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files[0]; setForm((f) => ({ ...f, avatarFile: file })); if (file) { const url = URL.createObjectURL(file); setAvatarPreview(url); } }} className="block w-full text-sm text-blue-200 bg-blue-900 rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-white" />
+        </div>
+        {/* Right: Form area */}
+        <div className="w-7/12 bg-gray-900 p-8 relative overflow-y-auto flex flex-col">
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-2xl">✕</button>
+          <h3 className="text-xl font-semibold text-white mb-3">Edit Profile</h3>
+          {error && <div className="text-red-400 mb-3">{error}</div>}
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            // Form validation
+            if (!form.firstName?.trim()) {
+              toast.error('Please enter your first name');
+              return;
+            }
+            if (!form.lastName?.trim()) {
+              toast.error('Please enter your last name');
+              return;
+            }
+            if (!form.phone?.trim()) {
+              toast.error('Please enter your phone number');
+              return;
+            }
+            if (!form.education?.trim()) {
+              toast.error('Please enter your education');
+              return;
+            }
+            handleSave(e);
+          }} className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <input name="firstName" value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} placeholder="First name" className="w-full p-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input name="lastName" value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} placeholder="Last name" className="w-full p-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <input name="phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="Phone" className="w-full p-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input name="education" value={form.education} onChange={(e) => setForm((f) => ({ ...f, education: e.target.value }))} placeholder="Education" className="w-full p-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input name="goal" value={form.goal || ''} onChange={(e) => setForm((f) => ({ ...f, goal: e.target.value }))} placeholder="Your goal (e.g. Become an Engineer)" className="w-full p-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+            <div className="flex justify-center gap-4 mt-6">
+              <button type="button" onClick={onClose} className="px-6 py-2 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-600 transition-colors shadow">Cancel</button>
+              <button type="submit" disabled={saving} className="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow">{saving ? 'Saving...' : 'Save changes'}</button>
+            </div>
+
+            <div className="flex justify-between items-center mt-8 text-sm">
+              <button 
+                type="button" 
+                onClick={() => {
+                  const t = getSafeToken();
+                  fetch('http://127.0.0.1:8000/api/export/', {
+                    headers: t ? { Authorization: `Bearer ${t}` } : {}
+                  })
+                    .then(async (r) => {
+                      if (!r.ok) throw await r.json();
+                      return r.json();
+                    })
+                    .then((data) => {
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'futuretrack_data.json';
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                      URL.revokeObjectURL(url);
+                      toast.success('Data downloaded successfully');
+                    })
+                    .catch(() => toast.error('Failed to export data'));
+                }} 
+                className="px-4 py-2 rounded-lg border border-green-600 text-green-600 bg-transparent font-semibold hover:bg-green-600 hover:text-white transition-colors"
+              >
+                Download Data
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setShowDeleteConfirm(true)} 
+                className="px-4 py-2 rounded-lg border border-rose-600 text-rose-600 bg-transparent font-semibold hover:bg-rose-600 hover:text-white transition-colors"
+              >
+                Delete Account
+              </button>
+
+              <ConfirmationModal
+                isOpen={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                title="Delete Account"
+                message="Are you sure you want to delete your account? This action cannot be undone."
+                confirmText="Delete Account"
+                cancelText="Cancel"
+                onConfirm={() => {
+                  const t = getSafeToken();
+                  fetch('http://127.0.0.1:8000/api/delete-account/', {
+                    method: 'POST',
+                    headers: t ? { Authorization: `Bearer ${t}` } : {}
+                  })
+                    .then(async (r) => {
+                      if (!r.ok) throw await r.json();
+                      toast.success('Account deleted successfully');
+                      localStorage.removeItem('ft_token');
+                      localStorage.removeItem('futuretrack_user');
+                      window.location.reload();
+                    })
+                    .catch(() => toast.error('Failed to delete account'));
+                }}
+
+              />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EditProfileModal;

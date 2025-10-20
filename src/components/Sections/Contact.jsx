@@ -1,5 +1,6 @@
 // src/components/Sections/Contact.jsx
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,10 +18,37 @@ const Contact = () => {
     }));
   };
 
+  const validateEmail = (email) => {
+    return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!formData.subject.trim()) {
+      toast.error('Please enter a subject');
+      return;
+    }
+    if (!formData.message.trim()) {
+      toast.error('Please enter your message');
+      return;
+    }
+    
     // Handle form submission
-    alert('Thank you for your message! We will get back to you soon.');
+    toast.success('Thank you for your message! We will get back to you soon.');
     setFormData({
       name: '',
       email: '',
@@ -51,7 +79,7 @@ const Contact = () => {
     {
       icon: '📍',
       title: 'Visit Us',
-      details: 'Hyderabad, Telangana',
+      details: 'RGUKT ONGOLE, AP',
       description: 'Come say hello at our office'
     }
   ];

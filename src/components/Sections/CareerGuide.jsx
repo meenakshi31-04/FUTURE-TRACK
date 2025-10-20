@@ -1,5 +1,6 @@
 // src/components/Sections/CareerGuide.jsx
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useLocation } from '../../hooks/useLocation';
 import { motion } from 'framer-motion';
@@ -16,11 +17,11 @@ const CareerGuide = ({ setShowCareerPlan, onStartQuiz, onViewCourses }) => {
 
   const handleGetPlan = () => {
     if (!careerInput.trim()) {
-      alert('Please enter your career goal first!');
+      toast.error('Please enter your career goal first!');
       return;
     }
     if (!selectedState || !selectedDistrict || !selectedCity) {
-      alert('Please select your State, District, and City for personalized recommendations!');
+      toast.error('Please select your State, District, and City for personalized recommendations!');
       return;
     }
     setShowCareerPlan(careerInput);

@@ -1,5 +1,7 @@
 // src/components/Sections/CourseEnquiry.jsx
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useLanguage } from '../../hooks/useLanguage';
 
 const CourseEnquiry = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +14,7 @@ const CourseEnquiry = () => {
 
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [enrolledIds, setEnrolledIds] = useState({});
 
   const coursesData = {
     'Software Engineer': [
@@ -46,6 +49,35 @@ const CourseEnquiry = () => {
     const courses = coursesData[formData.careerGoal] || [];
     setRecommendedCourses(courses);
     setShowResults(true);
+  };
+
+  // helper to use backend with the stored token safely
+  const getSafeToken = () => {
+    const t = localStorage.getItem('ft_token');
+    return t && t !== 'null' && t !== 'undefined' ? t : null;
+  };
+
+  const safeFetch = async (url, opts = {}) => {
+    const token = getSafeToken();
+    const headers = opts.headers || {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(url, { ...opts, headers });
+    if (res.status === 401) {
+      // notify app to clear auth and prompt login
+      window.dispatchEvent(new Event('ft:auth-failed'));
+    }
+    return res;
+  };
+
+  const processResponse = async (res) => {
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (res.status === 401) {
+      // already dispatched in safeFetch; provide friendly message
+      throw { detail: 'Session expired. Please login again.' };
+    }
+    if (!res.ok) throw data || { detail: 'Request failed' };
+    return data;
   };
 
   const resetForm = () => {
@@ -182,8 +214,11 @@ const CourseEnquiry = () => {
             </div>
 
             <div className="space-y-4">
-              {recommendedCourses.length > 0 ? (
-                recommendedCourses.map((course, index) => (
+                {recommendedCourses.length > 0 ? (
+                recommendedCourses.map((course, index) => {
+                  const courseKey = course.name || course.title;
+                  const enrolledId = enrolledIds[courseKey];
+                  return (
                   <div key={index} className="bg-gray-800 rounded-xl p-6 border border-blue-500 hover:border-blue-400 transition-all">
                     <div className="flex justify-between items-start">
                       <div>
@@ -194,12 +229,43 @@ const CourseEnquiry = () => {
                           <span>🏢 {course.provider}</span>
                         </div>
                       </div>
-                      <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                        Enroll Now
-                      </button>
+                      {enrolledId ? (
+                        <button
+                          onClick={() => {
+                            // navigate to dashboard and focus the enrolled course
+                            window.dispatchEvent(new CustomEvent('ft:navigate', { detail: { section: 'dashboard', enrollmentId: enrolledId } }));
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Go to course
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            safeFetch('http://127.0.0.1:8000/api/enrollments/create/', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ title: course.name || course.title, provider: course.provider })
+                            })
+                              .then(processResponse)
+                              .then((data) => {
+                                // mark this recommended course as enrolled (store by title)
+                                setEnrolledIds((s) => ({ ...s, [courseKey]: data.id }));
+                                // navigate to dashboard and let user see enrolled courses
+                                window.dispatchEvent(new CustomEvent('ft:navigate', { detail: { section: 'dashboard', enrollmentId: data.id } }));
+                              })
+                              .catch((err) => {
+                                toast.error(err.detail || 'Failed to enroll. Please login.');
+                              });
+                          }}
+                          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                          Enroll Now
+                        </button>
+                      )}
                     </div>
                   </div>
-                ))
+                )})
               ) : (
                 <div className="text-center py-8">
                   <p className="text-gray-300 text-lg">No courses found for your criteria. Please try different preferences.</p>

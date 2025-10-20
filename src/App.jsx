@@ -1,5 +1,6 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import Navbar from './components/Layout/Navbar';
 import Hero from './components/Sections/Hero';
 import ProblemSection from './components/Sections/ProblemSection';
@@ -17,6 +18,7 @@ import SuccessStories from './components/Sections/SuccessStories';
 import Contact from './components/Sections/Contact';
 import DiscussionForum from './components/Sections/DiscussionForum';
 import CourseEnquiry from './components/Sections/CourseEnquiry';
+import Dashboard from './pages/Dashboard';
 import { LanguageProvider } from './hooks/useLanguage';
 import { LocationProvider } from './hooks/useLocation';
 import './App.css';
@@ -31,21 +33,106 @@ function App() {
   const [quizResult, setQuizResult] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  // Normalize token value from localStorage to avoid 'null'/'undefined' strings
+  const getStoredToken = () => {
+    const t = localStorage.getItem('ft_token');
+    if (!t || t === 'null' || t === 'undefined') return null;
+    return t;
+  };
 
-  // Check if user is logged in on app load
+  const [token, setToken] = useState(getStoredToken());
+
+  // Fetch user profile data
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/profile/', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const profileData = await response.json();
+        const updatedUser = { ...user, ...profileData };
+        localStorage.setItem('futuretrack_user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  // Check if user is logged in on app load and setup event listeners
   useEffect(() => {
     const savedUser = localStorage.getItem('futuretrack_user');
     if (savedUser) {
       setIsLoggedIn(true);
       setUser(JSON.parse(savedUser));
-      setActiveSection('home');
     }
+
+    // handle global auth-failure events dispatched by safeFetch wrappers
+    const onAuthFail = (e) => {
+      // clear local login state and prompt login
+      localStorage.removeItem('ft_token');
+      localStorage.removeItem('futuretrack_user');
+      setToken(null);
+      setUser(null);
+      setIsLoggedIn(false);
+      setShowLogin(true);
+    };
+
+    const onNavigate = (e) => {
+      const section = e?.detail?.section;
+      if (section) setActiveSection(section);
+    };
+
+    // Setup event listeners
+    window.addEventListener('ft:auth-failed', onAuthFail);
+    window.addEventListener('ft:navigate', onNavigate);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('ft:auth-failed', onAuthFail);
+      window.removeEventListener('ft:navigate', onNavigate);
+    };
   }, []);
 
-  const handleLogin = (userData) => {
+  // Keep profile in sync when token changes
+  useEffect(() => {
+    if (token && isLoggedIn) {
+      fetchUserProfile();
+    }
+  }, [token, isLoggedIn]);
+
+  const handleLogin = async (userData) => {
     setIsLoggedIn(true);
     setUser(userData);
     localStorage.setItem('futuretrack_user', JSON.stringify(userData));
+    // Ensure token state is set — LoginModal stores token in localStorage but may not pass it back
+    const rawStored = localStorage.getItem('ft_token') || userData?.token || null;
+    const storedToken = rawStored && rawStored !== 'null' && rawStored !== 'undefined' ? rawStored : null;
+    if (storedToken) {
+      localStorage.setItem('ft_token', storedToken);
+      setToken(storedToken);
+      // Fetch complete profile data including avatar_url
+      try {
+        const response = await fetch('http://localhost:8000/api/profile/', {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`
+          }
+        });
+        if (response.ok) {
+          const profileData = await response.json();
+          const updatedUser = { ...userData, ...profileData };
+          localStorage.setItem('futuretrack_user', JSON.stringify(updatedUser));
+          setUser(updatedUser);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    } else {
+      localStorage.removeItem('ft_token');
+      setToken(null);
+    }
     setShowLogin(false);
     setActiveSection('home');
   };
@@ -54,6 +141,8 @@ function App() {
     setIsLoggedIn(false);
     setUser(null);
     localStorage.removeItem('futuretrack_user');
+    localStorage.removeItem('ft_token');
+    setToken(null);
     setActiveSection('home');
   };
 
@@ -217,6 +306,19 @@ function App() {
         return <SuccessStories />;
       case 'contact':
         return <Contact />;
+      case 'dashboard':
+        return <Dashboard
+          token={token}
+          onUpdateUser={(updatedProfile) => {
+            // update local user representation if available
+            if (updatedProfile && updatedProfile.email) {
+              const newUser = { ...user, firstName: updatedProfile.firstName || updatedProfile.first_name, lastName: updatedProfile.lastName || updatedProfile.last_name, email: updatedProfile.email };
+              setUser(newUser);
+              localStorage.setItem('futuretrack_user', JSON.stringify(newUser));
+            }
+          }}
+          onLogout={handleLogout}
+        />;
       default:
         return (
           <>
@@ -235,6 +337,30 @@ function App() {
     <LanguageProvider>
       <LocationProvider>
         <div className="min-h-screen bg-black text-white w-full full-width">
+          <Toaster
+            position="top-center"
+            reverseOrder={false}
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#18181b',
+                color: '#fff',
+                border: '1px solid #3b82f6',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#22c55e',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
           <Navbar 
             activeSection={activeSection}
             setActiveSection={handleNavClick}

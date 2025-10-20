@@ -29,3 +29,18 @@ Frontend integration:
    - POST http://127.0.0.1:8000/api/login/   (JSON body: email,password)
 
 Responses return a JSON with `user` and `token` (JWT access token). The frontend stores token in localStorage under `ft_token` by default.
+
+Additional endpoints for the new Dashboard feature:
+
+- GET/PUT http://127.0.0.1:8000/api/profile/  (authenticated) - fetch and update the user's profile (firstName,lastName,phone,education)
+- GET http://127.0.0.1:8000/api/enrollments/   (authenticated) - list courses the user is enrolled in
+
+After pulling these changes you must create and run migrations to add new models (Course, Enrollment) to the database:
+
+Windows PowerShell commands:
+
+```powershell
+python manage.py makemigrations accounts; python manage.py migrate
+```
+
+You can create courses via the Django admin (http://127.0.0.1:8000/admin/) and enroll users programmatically or via admin.
